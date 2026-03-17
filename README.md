@@ -1,8 +1,6 @@
 # QR Generator + Scanner (Windows)
 
 Desktop app to generate and scan QR codes with a clean Windows UI.
-The application can be download in:
-https://drive.google.com/file/d/1ziMTezFzFvodWUeilhxd_PsT14uGAm2H/view?usp=sharing
 
 ## Layout Preview
 
@@ -20,6 +18,7 @@ https://drive.google.com/file/d/1ziMTezFzFvodWUeilhxd_PsT14uGAm2H/view?usp=shari
 - Copy scan result and open result as URL
 - View scan history with timestamps
 - Clear scan history with one click
+- Increase/decrease app font size and persist preference
 
 ## Requirements
 
@@ -56,6 +55,16 @@ python app.py
      - **Email** (creates Outlook draft with QR image attached)
      - **Open Containing Folder**
 
+### Display / Font Size
+
+Use the top menu **View** to adjust text size across the whole app:
+
+- **Increase Font Size** (`Ctrl+=`)
+- **Decrease Font Size** (`Ctrl+-`)
+- **Reset Font Size** (`Ctrl+0`)
+
+The selected font size is saved automatically and restored on next launch.
+
 ### Scan QR
 
 1. Open the **Scan** tab.
@@ -90,6 +99,8 @@ Output executable:
 
 - If Email share does not open a draft with attachment:
   - Make sure Microsoft Outlook desktop is installed and configured.
+- If Outlook opens but no attachment is added:
+  - Ensure Outlook is fully set up with an active profile.
 - If camera fails to open:
   - Check Windows Camera privacy settings for desktop apps.
   - Try a different camera index in the app (`0`, `1`, `2`).

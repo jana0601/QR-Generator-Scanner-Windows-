@@ -7,7 +7,7 @@ import cv2
 import pyperclip
 from PIL import Image
 from PySide6.QtCore import QMimeData, QSettings, Qt, QTimer, QUrl
-from PySide6.QtGui import QDesktopServices, QImage, QKeySequence, QPixmap, QShortcut
+from PySide6.QtGui import QAction, QDesktopServices, QImage, QKeySequence, QPixmap, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -44,6 +44,14 @@ class MainWindow(QMainWindow):
         self.camera_timer = QTimer(self)
         self.camera_timer.setInterval(35)
         self.camera_timer.timeout.connect(self._on_camera_tick)
+        self.min_font_size = 9
+        self.max_font_size = 22
+        saved_font_size = self.settings.value("font_size", 10)
+        try:
+            self.font_size = int(saved_font_size)
+        except (TypeError, ValueError):
+            self.font_size = 10
+        self.font_size = max(self.min_font_size, min(self.font_size, self.max_font_size))
 
         self.current_qr_image: Image.Image | None = None
         self.current_generated_text = ""
@@ -51,6 +59,7 @@ class MainWindow(QMainWindow):
         self.last_scan_seen_at: datetime | None = None
 
         self._build_ui()
+        self._apply_font_size(show_status=False)
         self.statusBar().showMessage("Ready")
 
     def closeEvent(self, event) -> None:  # type: ignore[override]
@@ -59,6 +68,7 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
     def _build_ui(self) -> None:
+        self._build_view_menu()
         tabs = QTabWidget(self)
         self.setCentralWidget(tabs)
 
@@ -156,6 +166,24 @@ class MainWindow(QMainWindow):
 
         self._set_generate_actions_enabled(False)
         self._set_scan_actions_enabled(False)
+
+    def _build_view_menu(self) -> None:
+        view_menu = self.menuBar().addMenu("View")
+
+        increase_font_action = QAction("Increase Font Size", self)
+        increase_font_action.setShortcut(QKeySequence("Ctrl+="))
+        increase_font_action.triggered.connect(self.on_increase_font_size_clicked)
+        view_menu.addAction(increase_font_action)
+
+        decrease_font_action = QAction("Decrease Font Size", self)
+        decrease_font_action.setShortcut(QKeySequence("Ctrl+-"))
+        decrease_font_action.triggered.connect(self.on_decrease_font_size_clicked)
+        view_menu.addAction(decrease_font_action)
+
+        reset_font_action = QAction("Reset Font Size", self)
+        reset_font_action.setShortcut(QKeySequence("Ctrl+0"))
+        reset_font_action.triggered.connect(self.on_reset_font_size_clicked)
+        view_menu.addAction(reset_font_action)
 
     def _set_generate_actions_enabled(self, enabled: bool) -> None:
         self.save_button.setEnabled(enabled)
@@ -316,6 +344,24 @@ class MainWindow(QMainWindow):
             self.scan_result.setPlainText(value)
             self._set_scan_actions_enabled(True)
 
+    def on_increase_font_size_clicked(self) -> None:
+        if self.font_size >= self.max_font_size:
+            self.statusBar().showMessage(f"Maximum font size is {self.max_font_size}pt.")
+            return
+        self.font_size += 1
+        self._apply_font_size()
+
+    def on_decrease_font_size_clicked(self) -> None:
+        if self.font_size <= self.min_font_size:
+            self.statusBar().showMessage(f"Minimum font size is {self.min_font_size}pt.")
+            return
+        self.font_size -= 1
+        self._apply_font_size()
+
+    def on_reset_font_size_clicked(self) -> None:
+        self.font_size = 10
+        self._apply_font_size()
+
     def _append_scan_result(self, result: ScanResult) -> None:
         now = datetime.now()
         is_duplicate = (
@@ -367,6 +413,17 @@ class MainWindow(QMainWindow):
     def _show_error(self, message: str) -> None:
         QMessageBox.critical(self, "Error", message)
         self.statusBar().showMessage(message)
+
+    def _apply_font_size(self, show_status: bool = True) -> None:
+        app = QApplication.instance()
+        if app is None:
+            return
+        font = app.font()
+        font.setPointSize(self.font_size)
+        app.setFont(font)
+        self.settings.setValue("font_size", self.font_size)
+        if show_status:
+            self.statusBar().showMessage(f"Font size set to {self.font_size}pt.")
 
     def _ask_share_mode(self) -> ShareMode | None:
         dialog = QDialog(self)

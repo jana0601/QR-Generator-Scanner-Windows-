@@ -1,6 +1,8 @@
 # QR Generator + Scanner (Windows)
 
 Desktop app to generate and scan QR codes with a clean Windows UI.
+The application can be download in:
+https://drive.google.com/file/d/1ziMTezFzFvodWUeilhxd_PsT14uGAm2H/view?usp=sharing
 
 ## Layout Preview
 

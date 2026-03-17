@@ -3,8 +3,10 @@
 Desktop app to generate and scan QR codes with a clean Windows UI.
 
 ## Layout Preview
-
+Generation :
 ![generate tab](layout.png)
+
+Scann:
 ![scann tab](layout2.png)
 
 ## Features
